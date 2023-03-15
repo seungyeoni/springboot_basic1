@@ -1,5 +1,7 @@
-package com.ll.basic1;
+package com.ll.basic1.boundedContext.home.controller;
 
+import com.ll.basic1.boundedContext.member.entity.Member;
+import com.ll.basic1.boundedContext.member.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,12 +25,15 @@ import java.util.*;
 public class HomeController {
     private int i;
     private int peopleCount;
-    private List<People> peopleList;
+    private final List<People> peopleList;
+    // 필드 주입
+    private final MemberService memberService;
 
-    HomeController(){
+    public HomeController(MemberService memberService) {
         i = -1;
         peopleCount = 0;
         peopleList = new ArrayList<>();
+        this.memberService = memberService;
     }
 
     // @GetMapping("/home/main") 의 의미
@@ -267,13 +273,13 @@ public class HomeController {
 
     @GetMapping("/home/cookie/increase")
     @ResponseBody
-    public int showCookieIncrease(HttpServletRequest req, HttpServletResponse resp) throws IOException { // 리턴되는 int 값은 String 화 되어서 고객(브라우저)에게 전달된다.
+    public int showCookieIncrease(HttpServletRequest req, HttpServletResponse resp)throws IOException { // 리턴되는 int 값은 String 화 되어서 고객(브라우저)에게 전달된다.
         int countInCookie = 0;
 
         if (req.getCookies() != null) {
             countInCookie = Arrays.stream(req.getCookies())
                     .filter(cookie -> cookie.getName().equals("count"))
-                    .map(cookie -> cookie.getValue())
+                    .map(Cookie::getValue)
                     .mapToInt(Integer::parseInt)
                     .findFirst()
                     .orElse(0);
@@ -284,6 +290,11 @@ public class HomeController {
         resp.addCookie(new Cookie("count", newCountInCookie + ""));
 
         return newCountInCookie;
+    }
+    @GetMapping("/home/user1")
+    @ResponseBody
+    public Member showUser1() {
+        return memberService.findByUsername("user1");
     }
 }
 
