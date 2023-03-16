@@ -26,7 +26,6 @@ public class HomeController {
     private int i;
     private int peopleCount;
     private final List<People> peopleList;
-    // 필드 주입
     private final MemberService memberService;
 
     public HomeController(MemberService memberService) {
